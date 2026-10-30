@@ -4,14 +4,14 @@ import {
   createUser,
   updateUser,
   deleteUser,
-} from "../repositories/users.ts";
+} from "./users.ts";
 import { hashPassword, verifyPassword } from "../lib/password.ts";
 import {
   createSession,
   findSessionWithUser,
   deleteSession,
   deleteSessionsByUserId,
-} from "../repositories/sessions.ts";
+} from "./sessions.ts";
 import { createSessionId } from "../lib/session.ts";
 
 const SESSION_DAYS = 30;

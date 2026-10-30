@@ -7,8 +7,8 @@ import {
   changeName,
   changePassword,
   deleteAccount,
-} from "../services/auth.ts";
-import { requireAuth } from "../middleware/auth.ts";
+} from "./service.ts";
+import { requireAuth } from "./middleware.ts";
 
 export const authRoutes = new Hono();
 

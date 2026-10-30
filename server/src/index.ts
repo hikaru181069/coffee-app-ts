@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { authRoutes } from "./routes/auth.ts";
+import { authRoutes } from "./auth/routes.ts";
 
 const app = new Hono();
 

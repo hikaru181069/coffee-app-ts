@@ -1,6 +1,6 @@
 import { createMiddleware } from "hono/factory";
 import { getCookie } from "hono/cookie";
-import { getCurrentUser } from "../services/auth.ts";
+import { getCurrentUser } from "./service.ts";
 
 type AuthUser = { id: number; email: string; name: string; isDemo: boolean };
 
