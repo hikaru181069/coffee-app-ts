@@ -1,13 +1,16 @@
 import { Hono } from "hono";
 import { setCookie, getCookie, deleteCookie } from "hono/cookie";
-import { register, login, logout } from "../services/auth.ts";
+import {
+  register,
+  login,
+  logout,
+  changeName,
+  changePassword,
+  deleteAccount,
+} from "../services/auth.ts";
 import { requireAuth } from "../middleware/auth.ts";
 
 export const authRoutes = new Hono();
-
-authRoutes.get("/me", requireAuth, (c) => {
-  return c.json(c.get("user"));
-});
 
 authRoutes.post("/register", async (c) => {
   const body = await c.req.json();
@@ -41,6 +44,49 @@ authRoutes.post("/logout", async (c) => {
   const sessionId = getCookie(c, "session");
   if (sessionId) {
     await logout(sessionId);
+  }
+
+  deleteCookie(c, "session", { path: "/" });
+  return c.body(null, 204);
+});
+
+authRoutes.get("/me", requireAuth, (c) => {
+  return c.json(c.get("user"));
+});
+
+authRoutes.patch("/me", requireAuth, async (c) => {
+  const body = await c.req.json();
+  const user = await changeName(c.get("user").id, body.name);
+  return c.json(user);
+});
+
+authRoutes.patch("/password", requireAuth, async (c) => {
+  const body = await c.req.json();
+  const result = await changePassword(c.get("user").id, body);
+
+  if (!result.ok) {
+    if (result.error === "demo_user") {
+      return c.json(
+        { error: "お試し用アカウントではパスワードを変えられません" },
+        403,
+      );
+    }
+    return c.json({ error: "今のパスワードがちがいます" }, 400);
+  }
+
+  deleteCookie(c, "session", { path: "/" });
+  return c.body(null, 204);
+});
+
+authRoutes.delete("/me", requireAuth, async (c) => {
+  const body = await c.req.json();
+  const result = await deleteAccount(c.get("user").id, body.password);
+
+  if (!result.ok) {
+    if (result.error === "demo_user") {
+      return c.json({ error: "お試し用アカウントは退会できません" }, 403);
+    }
+    return c.json({ error: "パスワードがちがいます" }, 400);
   }
 
   deleteCookie(c, "session", { path: "/" });

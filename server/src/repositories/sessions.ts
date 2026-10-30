@@ -23,3 +23,7 @@ export async function findSessionWithUser(id: string) {
 export async function deleteSession(id: string) {
   await db.delete(sessions).where(eq(sessions.id, id));
 }
+
+export async function deleteSessionsByUserId(userId: number) {
+  await db.delete(sessions).where(eq(sessions.userId, userId));
+}

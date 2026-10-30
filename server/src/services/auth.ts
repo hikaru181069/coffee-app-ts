@@ -1,9 +1,16 @@
-import { findUserByEmail, createUser } from "../repositories/users.ts";
+import {
+  findUserByEmail,
+  findUserById,
+  createUser,
+  updateUser,
+  deleteUser,
+} from "../repositories/users.ts";
 import { hashPassword, verifyPassword } from "../lib/password.ts";
 import {
   createSession,
   findSessionWithUser,
   deleteSession,
+  deleteSessionsByUserId,
 } from "../repositories/sessions.ts";
 import { createSessionId } from "../lib/session.ts";
 
@@ -95,4 +102,62 @@ export async function getCurrentUser(sessionId: string) {
 
 export async function logout(sessionId: string) {
   await deleteSession(sessionId);
+}
+
+export async function changeName(userId: number, name: string) {
+  const user = await updateUser(userId, { name });
+  return {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    isDemo: user.isDemo,
+  };
+}
+
+type ProfileResult =
+  | { ok: true }
+  | { ok: false; error: "demo_user" | "wrong_password" };
+
+export async function changePassword(
+  userId: number,
+  input: { currentPassword: string; newPassword: string },
+): Promise<ProfileResult> {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw new Error("user not found");
+  }
+  if (user.isDemo) {
+    return { ok: false, error: "demo_user" };
+  }
+
+  const valid = await verifyPassword(user.passwordHash, input.currentPassword);
+  if (!valid) {
+    return { ok: false, error: "wrong_password" };
+  }
+
+  const passwordHash = await hashPassword(input.newPassword);
+  await updateUser(userId, { passwordHash });
+  await deleteSessionsByUserId(userId);
+  return { ok: true };
+}
+
+export async function deleteAccount(
+  userId: number,
+  password: string,
+): Promise<ProfileResult> {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw new Error("user not found");
+  }
+  if (user.isDemo) {
+    return { ok: false, error: "demo_user" };
+  }
+
+  const valid = await verifyPassword(user.passwordHash, password);
+  if (!valid) {
+    return { ok: false, error: "wrong_password" };
+  }
+
+  await deleteUser(userId);
+  return { ok: true };
 }
