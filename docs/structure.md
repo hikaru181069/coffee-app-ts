@@ -18,6 +18,7 @@ server/src/
 - 機能ごとにフォルダを分ける（auth/・records/ など）
 - フォルダの中は、役割ごとにファイルを分ける（routes → service → 表とのやりとり → db）
 - 上から下へだけ呼ぶ。routes からデータベースを直接さわらない
+- 手順があるときだけ service を作る。ないときは、routes から repository を直接呼んでよい（例: options/ は一覧を取り出して返すだけなので、service がない）
 
 ## なぜこうしたか
 
