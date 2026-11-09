@@ -10,11 +10,6 @@ import {
 
 export const recordsRoutes = new Hono();
 
-recordsRoutes.get("/", requireAuth, async (c) => {
-  const list = await findRecords(c.get("user").id);
-  return c.json(list);
-});
-
 recordsRoutes.get("/:id", requireAuth, async (c) => {
   const id = Number(c.req.param("id"));
   const record = await findRecordById(c.get("user").id, id);
@@ -49,4 +44,20 @@ recordsRoutes.delete("/:id", requireAuth, async (c) => {
     return c.json({ error: "記録が見つかりません" }, 404);
   }
   return c.body(null, 204);
+});
+
+function toNumber(value: string | undefined) {
+  return value === undefined ? undefined : Number(value);
+}
+
+recordsRoutes.get("/", requireAuth, async (c) => {
+  const list = await findRecords(c.get("user").id, {
+    limit: toNumber(c.req.query("limit")),
+    originId: toNumber(c.req.query("origin")),
+    varietyId: toNumber(c.req.query("variety")),
+    processId: toNumber(c.req.query("process")),
+    roastLevelId: toNumber(c.req.query("roast")),
+    flavorId: toNumber(c.req.query("flavor")),
+  });
+  return c.json(list);
 });

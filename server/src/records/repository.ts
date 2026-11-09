@@ -1,6 +1,6 @@
 import { db } from "../db/index.ts";
 import { records, recordVarieties, recordFlavors } from "../db/schema.ts";
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq, inArray, type SQL } from "drizzle-orm";
 
 type RecordInput = {
   name: string;
@@ -20,6 +20,64 @@ type RecordInput = {
   varietyIds: number[];
   flavorIds: number[];
 };
+
+type RecordFilters = {
+  limit?: number;
+  originId?: number;
+  varietyId?: number;
+  processId?: number;
+  roastLevelId?: number;
+  flavorId?: number;
+};
+
+export async function findRecords(userId: number, filters: RecordFilters) {
+  const conditions: SQL[] = [eq(records.userId, userId)];
+
+  if (filters.originId !== undefined) {
+    conditions.push(eq(records.originId, filters.originId));
+  }
+  if (filters.processId !== undefined) {
+    conditions.push(eq(records.processId, filters.processId));
+  }
+  if (filters.roastLevelId !== undefined) {
+    conditions.push(eq(records.roastLevelId, filters.roastLevelId));
+  }
+  if (filters.varietyId !== undefined) {
+    conditions.push(
+      inArray(
+        records.id,
+        db
+          .select({ id: recordVarieties.recordId })
+          .from(recordVarieties)
+          .where(eq(recordVarieties.varietyId, filters.varietyId)),
+      ),
+    );
+  }
+  if (filters.flavorId !== undefined) {
+    conditions.push(
+      inArray(
+        records.id,
+        db
+          .select({ id: recordFlavors.recordId })
+          .from(recordFlavors)
+          .where(eq(recordFlavors.flavorId, filters.flavorId)),
+      ),
+    );
+  }
+
+  let query = db
+    .select()
+    .from(records)
+    .where(and(...conditions))
+    .orderBy(desc(records.drankOn), desc(records.createdAt))
+    .$dynamic();
+  if (filters.limit !== undefined) {
+    query = query.limit(filters.limit);
+  }
+
+  const rows = await query;
+  return attachTags(rows);
+}
 
 async function attachTags(rows: (typeof records.$inferSelect)[]) {
   if (rows.length === 0) {
@@ -46,14 +104,6 @@ async function attachTags(rows: (typeof records.$inferSelect)[]) {
   }));
 }
 
-export async function findRecords(userId: number) {
-  const rows = await db
-    .select()
-    .from(records)
-    .where(eq(records.userId, userId))
-    .orderBy(desc(records.drankOn), desc(records.createdAt));
-  return attachTags(rows);
-}
 
 export async function findRecordById(userId: number, id: number) {
   const rows = await db
