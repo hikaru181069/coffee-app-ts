@@ -9,11 +9,19 @@ import {
   deleteAccount,
 } from "./service.ts";
 import { requireAuth } from "./middleware.ts";
+import { validate } from "../lib/validate.ts";
+import {
+  registerSchema,
+  loginSchema,
+  changeNameSchema,
+  changePasswordSchema,
+  deleteAccountSchema,
+} from "./validation.ts";
 
 export const authRoutes = new Hono();
 
-authRoutes.post("/register", async (c) => {
-  const body = await c.req.json();
+authRoutes.post("/register", validate("json", registerSchema), async (c) => {
+  const body = c.req.valid("json");
   const result = await register(body);
 
   if (!result.ok) {
@@ -30,8 +38,8 @@ authRoutes.post("/register", async (c) => {
   return c.json(result.user, 201);
 });
 
-authRoutes.post("/login", async (c) => {
-  const body = await c.req.json();
+authRoutes.post("/login", validate("json", loginSchema), async (c) => {
+  const body = c.req.valid("json");
   const result = await login(body);
 
   if (!result.ok) {
@@ -70,65 +78,82 @@ authRoutes.get("/me", requireAuth, (c) => {
   return c.json(c.get("user"));
 });
 
-authRoutes.patch("/me", requireAuth, async (c) => {
-  const body = await c.req.json();
-  const user = await changeName(c.get("user").id, body.name);
-  return c.json(user);
-});
+authRoutes.patch(
+  "/me",
+  requireAuth,
+  validate("json", changeNameSchema),
+  async (c) => {
+    const body = c.req.valid("json");
+    const user = await changeName(c.get("user").id, body.name);
+    return c.json(user);
+  },
+);
 
-authRoutes.patch("/password", requireAuth, async (c) => {
-  const body = await c.req.json();
-  const result = await changePassword(c.get("user").id, body);
+authRoutes.patch(
+  "/password",
+  requireAuth,
+  validate("json", changePasswordSchema),
+  async (c) => {
+    const body = c.req.valid("json");
+    const result = await changePassword(c.get("user").id, body);
 
-  if (!result.ok) {
-    if (result.error === "demo_user") {
+    if (!result.ok) {
+      if (result.error === "demo_user") {
+        return c.json(
+          {
+            error: {
+              code: "demo_user",
+              message: "お試し用アカウントではパスワードを変えられません",
+            },
+          },
+          403,
+        );
+      }
       return c.json(
         {
           error: {
-            code: "demo_user",
-            message: "お試し用アカウントではパスワードを変えられません",
+            code: "wrong_password",
+            message: "今のパスワードがちがいます",
           },
         },
-        403,
+        400,
       );
     }
-    return c.json(
-      {
-        error: {
-          code: "wrong_password",
-          message: "今のパスワードがちがいます",
-        },
-      },
-      400,
-    );
-  }
 
-  deleteCookie(c, "session", { path: "/" });
-  return c.body(null, 204);
-});
+    deleteCookie(c, "session", { path: "/" });
+    return c.body(null, 204);
+  },
+);
 
-authRoutes.delete("/me", requireAuth, async (c) => {
-  const body = await c.req.json();
-  const result = await deleteAccount(c.get("user").id, body.password);
+authRoutes.delete(
+  "/me",
+  requireAuth,
+  validate("json", deleteAccountSchema),
+  async (c) => {
+    const body = c.req.valid("json");
+    const result = await deleteAccount(c.get("user").id, body.password);
 
-  if (!result.ok) {
-    if (result.error === "demo_user") {
+    if (!result.ok) {
+      if (result.error === "demo_user") {
+        return c.json(
+          {
+            error: {
+              code: "demo_user",
+              message: "お試し用アカウントは退会できません",
+            },
+          },
+          403,
+        );
+      }
       return c.json(
         {
-          error: {
-            code: "demo_user",
-            message: "お試し用アカウントは退会できません",
-          },
+          error: { code: "wrong_password", message: "パスワードがちがいます" },
         },
-        403,
+        400,
       );
     }
-    return c.json(
-      { error: { code: "wrong_password", message: "パスワードがちがいます" } },
-      400,
-    );
-  }
 
-  deleteCookie(c, "session", { path: "/" });
-  return c.body(null, 204);
-});
+    deleteCookie(c, "session", { path: "/" });
+    return c.body(null, 204);
+  },
+);
