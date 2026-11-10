@@ -17,6 +17,7 @@ import {
   changePasswordSchema,
   deleteAccountSchema,
 } from "./validation.ts";
+import { startDemo } from "./demo.ts";
 
 export const authRoutes = new Hono();
 
@@ -157,3 +158,16 @@ authRoutes.delete(
     return c.body(null, 204);
   },
 );
+
+authRoutes.post("/demo", async (c) => {
+  const result = await startDemo();
+
+  setCookie(c, "session", result.sessionId, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires: result.expireAt,
+  });
+  return c.json(result.user, 201);
+});
