@@ -8,19 +8,29 @@ import {
   updateRecord,
   deleteRecord,
 } from "./repository.ts";
-import { recordInputSchema, recordUpdateSchema } from "./validation.ts";
+import {
+  recordIdSchema,
+  recordInputSchema,
+  recordQuerySchema,
+  recordUpdateSchema,
+} from "./validation.ts";
 
 export const recordsRoutes = new Hono();
 
-recordsRoutes.get("/:id", requireAuth, async (c) => {
-  const id = Number(c.req.param("id"));
-  const record = await findRecordById(c.get("user").id, id);
+recordsRoutes.get(
+  "/:id",
+  requireAuth,
+  zValidator("param", recordIdSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const record = await findRecordById(c.get("user").id, id);
 
-  if (!record) {
-    return c.json({ error: "記録が見つかりません" }, 404);
-  }
-  return c.json(record);
-});
+    if (!record) {
+      return c.json({ error: "記録が見つかりません" }, 404);
+    }
+    return c.json(record);
+  },
+);
 
 recordsRoutes.post(
   "/",
@@ -36,9 +46,10 @@ recordsRoutes.post(
 recordsRoutes.patch(
   "/:id",
   requireAuth,
+  zValidator("param", recordIdSchema),
   zValidator("json", recordUpdateSchema),
   async (c) => {
-    const id = Number(c.req.param("id"));
+    const { id } = c.req.valid("param");
     const body = c.req.valid("json");
     const record = await updateRecord(c.get("user").id, id, body);
 
@@ -49,28 +60,35 @@ recordsRoutes.patch(
   },
 );
 
-recordsRoutes.delete("/:id", requireAuth, async (c) => {
-  const id = Number(c.req.param("id"));
-  const deleted = await deleteRecord(c.get("user").id, id);
+recordsRoutes.delete(
+  "/:id",
+  requireAuth,
+  zValidator("param", recordIdSchema),
+  async (c) => {
+    const { id } = c.req.valid("param");
+    const deleted = await deleteRecord(c.get("user").id, id);
 
-  if (!deleted) {
-    return c.json({ error: "記録が見つかりません" }, 404);
-  }
-  return c.body(null, 204);
-});
+    if (!deleted) {
+      return c.json({ error: "記録が見つかりません" }, 404);
+    }
+    return c.body(null, 204);
+  },
+);
 
-function toNumber(value: string | undefined) {
-  return value === undefined ? undefined : Number(value);
-}
-
-recordsRoutes.get("/", requireAuth, async (c) => {
-  const list = await findRecords(c.get("user").id, {
-    limit: toNumber(c.req.query("limit")),
-    originId: toNumber(c.req.query("origin")),
-    varietyId: toNumber(c.req.query("variety")),
-    processId: toNumber(c.req.query("process")),
-    roastLevelId: toNumber(c.req.query("roast")),
-    flavorId: toNumber(c.req.query("flavor")),
-  });
-  return c.json(list);
-});
+recordsRoutes.get(
+  "/",
+  requireAuth,
+  zValidator("query", recordQuerySchema),
+  async (c) => {
+    const query = c.req.valid("query");
+    const list = await findRecords(c.get("user").id, {
+      limit: query.limit,
+      originId: query.origin,
+      varietyId: query.variety,
+      processId: query.process,
+      roastLevelId: query.roast,
+      flavorId: query.flavor,
+    });
+    return c.json(list);
+  },
+);
