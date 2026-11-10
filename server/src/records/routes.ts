@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { zValidator } from "@hono/zod-validator";
 import { requireAuth } from "../auth/middleware.ts";
 import {
   createRecord,
@@ -7,6 +8,7 @@ import {
   updateRecord,
   deleteRecord,
 } from "./repository.ts";
+import { recordInputSchema, recordUpdateSchema } from "./validation.ts";
 
 export const recordsRoutes = new Hono();
 
@@ -20,21 +22,32 @@ recordsRoutes.get("/:id", requireAuth, async (c) => {
   return c.json(record);
 });
 
-recordsRoutes.post("/", requireAuth, async (c) => {
-  const body = await c.req.json();
-  const record = await createRecord(c.get("user").id, body);
-  return c.json(record, 201);
-});
-recordsRoutes.patch("/:id", requireAuth, async (c) => {
-  const id = Number(c.req.param("id"));
-  const body = await c.req.json();
-  const record = await updateRecord(c.get("user").id, id, body);
+recordsRoutes.post(
+  "/",
+  requireAuth,
+  zValidator("json", recordInputSchema),
+  async (c) => {
+    const body = c.req.valid("json");
+    const record = await createRecord(c.get("user").id, body);
+    return c.json(record, 201);
+  },
+);
 
-  if (!record) {
-    return c.json({ error: "記録が見つかりません" }, 404);
-  }
-  return c.json(record);
-});
+recordsRoutes.patch(
+  "/:id",
+  requireAuth,
+  zValidator("json", recordUpdateSchema),
+  async (c) => {
+    const id = Number(c.req.param("id"));
+    const body = c.req.valid("json");
+    const record = await updateRecord(c.get("user").id, id, body);
+
+    if (!record) {
+      return c.json({ error: "記録が見つかりません" }, 404);
+    }
+    return c.json(record);
+  },
+);
 
 recordsRoutes.delete("/:id", requireAuth, async (c) => {
   const id = Number(c.req.param("id"));

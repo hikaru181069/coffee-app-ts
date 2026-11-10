@@ -2,24 +2,7 @@ import { db } from "../db/index.ts";
 import { records, recordVarieties, recordFlavors } from "../db/schema.ts";
 import { and, desc, eq, inArray, type SQL } from "drizzle-orm";
 
-type RecordInput = {
-  name: string;
-  drankOn: string;
-  place: "home" | "cafe";
-  rating?: number;
-  notes?: string;
-  cafeName?: string;
-  roasterName?: string;
-  originId?: number;
-  farmName?: string;
-  processId?: number;
-  roastLevelId?: number;
-  coffeeGrams?: number;
-  waterMl?: number;
-  brewSeconds?: number;
-  varietyIds: number[];
-  flavorIds: number[];
-};
+import type { RecordInput } from "./validation.ts";
 
 type RecordFilters = {
   limit?: number;
@@ -103,7 +86,6 @@ async function attachTags(rows: (typeof records.$inferSelect)[]) {
       .map((row) => row.flavorId),
   }));
 }
-
 
 export async function findRecordById(userId: number, id: number) {
   const rows = await db
