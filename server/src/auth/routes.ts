@@ -17,7 +17,15 @@ authRoutes.post("/register", async (c) => {
   const result = await register(body);
 
   if (!result.ok) {
-    return c.json({ error: "このメールアドレスはすでに使われています" }, 409);
+    return c.json(
+      {
+        error: {
+          code: "email_taken",
+          message: "このメールアドレスはすでに使われています",
+        },
+      },
+      409,
+    );
   }
   return c.json(result.user, 201);
 });
@@ -27,7 +35,15 @@ authRoutes.post("/login", async (c) => {
   const result = await login(body);
 
   if (!result.ok) {
-    return c.json({ error: "メールアドレスかパスワードがちがいます" }, 401);
+    return c.json(
+      {
+        error: {
+          code: "invalid_credentials",
+          message: "メールアドレスかパスワードがちがいます",
+        },
+      },
+      401,
+    );
   }
 
   setCookie(c, "session", result.sessionId, {
@@ -67,11 +83,24 @@ authRoutes.patch("/password", requireAuth, async (c) => {
   if (!result.ok) {
     if (result.error === "demo_user") {
       return c.json(
-        { error: "お試し用アカウントではパスワードを変えられません" },
+        {
+          error: {
+            code: "demo_user",
+            message: "お試し用アカウントではパスワードを変えられません",
+          },
+        },
         403,
       );
     }
-    return c.json({ error: "今のパスワードがちがいます" }, 400);
+    return c.json(
+      {
+        error: {
+          code: "wrong_password",
+          message: "今のパスワードがちがいます",
+        },
+      },
+      400,
+    );
   }
 
   deleteCookie(c, "session", { path: "/" });
@@ -84,9 +113,20 @@ authRoutes.delete("/me", requireAuth, async (c) => {
 
   if (!result.ok) {
     if (result.error === "demo_user") {
-      return c.json({ error: "お試し用アカウントは退会できません" }, 403);
+      return c.json(
+        {
+          error: {
+            code: "demo_user",
+            message: "お試し用アカウントは退会できません",
+          },
+        },
+        403,
+      );
     }
-    return c.json({ error: "パスワードがちがいます" }, 400);
+    return c.json(
+      { error: { code: "wrong_password", message: "パスワードがちがいます" } },
+      400,
+    );
   }
 
   deleteCookie(c, "session", { path: "/" });

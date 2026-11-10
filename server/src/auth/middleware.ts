@@ -8,12 +8,18 @@ export const requireAuth = createMiddleware<{ Variables: { user: AuthUser } }>(
   async (c, next) => {
     const sessionId = getCookie(c, "session");
     if (!sessionId) {
-      return c.json({ error: "ログインしてください" }, 401);
+      return c.json(
+        { error: { code: "unauthorized", message: "ログインしてください" } },
+        401,
+      );
     }
 
     const user = await getCurrentUser(sessionId);
     if (!user) {
-      return c.json({ error: "ログインしてください" }, 401);
+      return c.json(
+        { error: { code: "unauthorized", message: "ログインしてください" } },
+        401,
+      );
     }
 
     c.set("user", user);
