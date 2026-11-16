@@ -18,8 +18,19 @@ import {
   deleteAccountSchema,
 } from "./validation.ts";
 import { startDemo } from "./demo.ts";
+import type { Context } from "hono";
 
 export const authRoutes = new Hono();
+
+function setSessionCookie(c: Context, sessionId: string, expires: Date) {
+  setCookie(c, "session", sessionId, {
+    httpOnly: true,
+    sameSite: "Lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    expires,
+  });
+}
 
 authRoutes.post("/register", validate("json", registerSchema), async (c) => {
   const body = c.req.valid("json");
@@ -55,13 +66,7 @@ authRoutes.post("/login", validate("json", loginSchema), async (c) => {
     );
   }
 
-  setCookie(c, "session", result.sessionId, {
-    httpOnly: true,
-    sameSite: "Lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    expires: result.expireAt,
-  });
+  setSessionCookie(c, result.sessionId, result.expireAt);
   return c.json(result.user);
 });
 
@@ -162,12 +167,6 @@ authRoutes.delete(
 authRoutes.post("/demo", async (c) => {
   const result = await startDemo();
 
-  setCookie(c, "session", result.sessionId, {
-    httpOnly: true,
-    sameSite: "Lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    expires: result.expireAt,
-  });
+  setSessionCookie(c, result.sessionId, result.expireAt);
   return c.json(result.user, 201);
 });
