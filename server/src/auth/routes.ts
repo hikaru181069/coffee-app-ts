@@ -104,7 +104,7 @@ authRoutes.patch(
           {
             error: {
               code: "demo_user",
-              message: "お試し用アカウントではパスワードを変えられません",
+              message: "デモアカウントではパスワードを変えられません",
             },
           },
           403,
@@ -140,7 +140,7 @@ authRoutes.delete(
           {
             error: {
               code: "demo_user",
-              message: "お試し用アカウントは退会できません",
+              message: "デモアカウントは退会できません",
             },
           },
           403,

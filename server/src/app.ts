@@ -27,7 +27,7 @@ app.onError((err, c) => {
       {
         error: {
           code: "invalid_json",
-          message: "送られてきたjsonが壊れてるンゴ",
+          message: "送られてきたデータの形が正しくありません",
         },
       },
       400,
@@ -38,7 +38,7 @@ app.onError((err, c) => {
     {
       error: {
         code: "internal_error",
-        message: "サーバーでエラーが起きたンゴ",
+        message: "サーバーでエラーが起きました。時間をおいてもう一度試してください",
       },
     },
     500,

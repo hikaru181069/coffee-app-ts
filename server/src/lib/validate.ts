@@ -19,7 +19,7 @@ export function validate<
         {
           error: {
             code: "validation_error",
-            message: "入力間違ってるんご",
+            message: "入力に間違いがあります",
             fields,
           },
         },

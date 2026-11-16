@@ -13,14 +13,14 @@ const HOUR = 60 * 60 * 1000;
 export async function startDemo() {
   const now = Date.now();
 
-  // 24時間たったお試し用アカウントを消す（記録とセッションも一緒に消える）
+  // 24時間たったデモアカウントを消す（記録とセッションも一緒に消える）
   await deleteOldDemoUsers(new Date(now - DEMO_HOURS * HOUR));
 
   // メールアドレスとパスワードは自動で作る。本人には見せない
   const user = await createUser({
     email: `demo-${randomUUID()}@example.invalid`,
     passwordHash: await hashPassword(randomBytes(32).toString("base64url")),
-    name: "お試しユーザー",
+    name: "デモユーザー",
     isDemo: true,
   });
 
