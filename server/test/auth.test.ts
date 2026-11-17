@@ -42,3 +42,27 @@ describe("ログイン", () => {
     expect(login.status).toBe(200);
   });
 });
+
+describe("デモアカウント", () => {
+  beforeEach(async () => {
+    await resetDb();
+  });
+
+  test("デモで使うと、ログインした状態になり、サンプル記録が7つ入っている", async () => {
+    const demo = await request("POST", "/api/auth/demo");
+    expect(demo.status).toBe(201);
+
+    const cookie = (demo.headers.get("Set-Cookie") ?? "").split(";")[0];
+
+    const records = await request("GET", "/api/records", { cookie });
+    expect(records.status).toBe(200);
+    expect(await records.json()).toHaveLength(7);
+
+    // デモアカウントでは、パスワードを変えられない
+    const change = await request("PATCH", "/api/auth/password", {
+      cookie,
+      body: { currentPassword: "password123", newPassword: "newpassword456" },
+    });
+    expect(change.status).toBe(403);
+  });
+});
