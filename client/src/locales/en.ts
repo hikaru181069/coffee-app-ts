@@ -33,4 +33,13 @@ export const en = {
     validation_error: "Please check your input",
     email_taken: "This email is already in use",
   },
+
+  detail: {
+    loading: "Loading",
+    notFound: "Record not found",
+    place: {
+      home: "At home",
+      cafe: "At a cafe",
+    },
+  },
 };

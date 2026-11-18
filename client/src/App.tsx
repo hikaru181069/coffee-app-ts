@@ -2,6 +2,8 @@ import { Route, Routes } from "react-router";
 import { useTranslation } from "react-i18next";
 import { LoginPage } from "./pages/LoginPage.tsx";
 import { RegisterPage } from "./pages/RegisterPage.tsx";
+import { RecordsPage } from "./pages/RecordsPage.tsx";
+import { RecordDetailPage } from "./pages/RecordDetailPage.tsx";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -18,9 +20,9 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/home" element={<p>{t("pages.home")}</p>} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/records" element={<p>{t("pages.records")}</p>} />
+        <Route path="/records" element={<RecordsPage />} />
         <Route path="/records/new" element={<p>{t("pages.newRecord")}</p>} />
-        <Route path="/records/:id" element={<p>{t("pages.recordDetail")}</p>} />
+        <Route path="/records/:id" element={<RecordDetailPage />} />
         <Route
           path="/records/:id/edit"
           element={<p>{t("pages.editRecord")}</p>}

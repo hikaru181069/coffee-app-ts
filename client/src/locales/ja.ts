@@ -28,6 +28,15 @@ export const ja = {
     toLogin: "ログインはこちら",
   },
 
+  detail: {
+    loading: "読み込み中",
+    notFound: "記録が見つかりません",
+    place: {
+      home: "家で",
+      cafe: "カフェで",
+    },
+  },
+
   errors: {
     invalid_credentials: "メールアドレスかパスワードがちがいます",
     validation_error: "入力に間違いがあります",
