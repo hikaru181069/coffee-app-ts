@@ -49,28 +49,34 @@ export const records = pgTable(
 export const origins = pgTable("origins", {
   id: serial().primaryKey(),
   name: text().notNull().unique(),
+  nameEn: text().notNull().unique(),
 });
 
 export const varieties = pgTable("varieties", {
   id: serial().primaryKey(),
   name: text().notNull().unique(),
+  nameEn: text().notNull().unique(),
 });
 
 export const processes = pgTable("processes", {
   id: serial().primaryKey(),
   name: text().notNull().unique(),
+  nameEn: text().notNull().unique(),
 });
 
 export const roastLevels = pgTable("roast_levels", {
   id: serial().primaryKey(),
   name: text().notNull().unique(),
+  nameEn: text().notNull().unique(),
   sortOrder: integer().notNull().unique(),
 });
 
 export const flavors = pgTable("flavors", {
   id: serial().primaryKey(),
   name: text().notNull().unique(),
+  nameEn: text().notNull().unique(),
   category: text().notNull(),
+  categoryEn: text().notNull(),
 });
 
 export const users = pgTable("users", {
