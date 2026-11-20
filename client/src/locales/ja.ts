@@ -31,6 +31,9 @@ export const ja = {
   detail: {
     loading: "読み込み中",
     notFound: "記録が見つかりません",
+    edit: "直す",
+    delete: "消す",
+    confirmDelete: "この記録を消しますか?",
     place: {
       home: "家で",
       cafe: "カフェで",
@@ -50,6 +53,10 @@ export const ja = {
     none: "選ばない",
     varieties: "品種",
     flavors: "フレーバー",
+  },
+
+  menu: {
+    logout: "ログアウト",
   },
 
   errors: {

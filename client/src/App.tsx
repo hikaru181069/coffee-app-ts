@@ -5,17 +5,14 @@ import { RegisterPage } from "./pages/RegisterPage.tsx";
 import { RecordsPage } from "./pages/RecordsPage.tsx";
 import { RecordDetailPage } from "./pages/RecordDetailPage.tsx";
 import { NewRecordPage } from "./pages/NewRecordPage.tsx";
+import { Menu } from "./components/Menu.tsx";
 
 function App() {
-  const { t, i18n } = useTranslation();
-
-  function switchLanguage() {
-    i18n.changeLanguage(i18n.language === "ja" ? "en" : "ja");
-  }
+  const { t } = useTranslation();
 
   return (
     <>
-      <button onClick={switchLanguage}>{t("switchLanguage")}</button>
+      <Menu />
       <Routes>
         <Route path="/" element={<p>{t("pages.top")}</p>} />
         <Route path="/login" element={<LoginPage />} />

@@ -37,10 +37,17 @@ export const en = {
   detail: {
     loading: "Loading",
     notFound: "Record not found",
+    edit: "Edit",
+    delete: "Delete",
+    confirmDelete: "Delete this record?",
     place: {
       home: "At home",
       cafe: "At a cafe",
     },
+  },
+
+  menu: {
+    logout: "Log out",
   },
 
   form: {

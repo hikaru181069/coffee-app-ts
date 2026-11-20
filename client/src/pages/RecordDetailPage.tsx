@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useTranslation } from "react-i18next";
 
 type CoffeeRecord = {
@@ -35,7 +35,17 @@ export function RecordDetailPage() {
     load();
   }, [id, navigate]);
 
-  // 2. ボタンなどを押したときの処理(今回はなし)
+  // 2. ボタンなどを押したときの処理
+  async function handleDelete() {
+    if (!confirm(t("detail.confirmDelete"))) return;
+
+    const res = await fetch(`/api/records/${id}`, { method: "DELETE" });
+    if (res.status === 401) {
+      navigate("/login");
+      return;
+    }
+    navigate("/records");
+  }
 
   // 3. 画面の形を返す
   if (notFound) return <p>{t("detail.notFound")}</p>;
@@ -48,6 +58,8 @@ export function RecordDetailPage() {
       <p>{t(`detail.place.${record.place}`)}</p>
       {record.rating && <p>{record.rating}/10</p>}
       {record.notes && <p>{record.notes}</p>}
+      <Link to={`/records/${record.id}/edit`}>{t("detail.edit")}</Link>
+      <button onClick={handleDelete}>{t("detail.delete")}</button>
     </div>
   );
 }
