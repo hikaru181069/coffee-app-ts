@@ -42,4 +42,19 @@ export const en = {
       cafe: "At a cafe",
     },
   },
+
+  form: {
+    name: "Coffee name",
+    drankOn: "Date",
+    place: "Place",
+    rating: "Rating (1-10)",
+    notes: "Notes",
+    submit: "Save",
+    origin: "Origin",
+    process: "Process",
+    roastLevel: "Roast level",
+    none: "None",
+    varieties: "Varieties",
+    flavors: "Flavors",
+  },
 };

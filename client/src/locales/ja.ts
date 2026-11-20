@@ -37,6 +37,21 @@ export const ja = {
     },
   },
 
+  form: {
+    name: "コーヒーの名前",
+    drankOn: "飲んだ日",
+    place: "場所",
+    rating: "点数(1〜10)",
+    notes: "メモ",
+    submit: "保存する",
+    origin: "産地",
+    process: "精製方法",
+    roastLevel: "焙煎度",
+    none: "選ばない",
+    varieties: "品種",
+    flavors: "フレーバー",
+  },
+
   errors: {
     invalid_credentials: "メールアドレスかパスワードがちがいます",
     validation_error: "入力に間違いがあります",

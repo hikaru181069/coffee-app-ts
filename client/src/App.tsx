@@ -4,6 +4,7 @@ import { LoginPage } from "./pages/LoginPage.tsx";
 import { RegisterPage } from "./pages/RegisterPage.tsx";
 import { RecordsPage } from "./pages/RecordsPage.tsx";
 import { RecordDetailPage } from "./pages/RecordDetailPage.tsx";
+import { NewRecordPage } from "./pages/NewRecordPage.tsx";
 
 function App() {
   const { t, i18n } = useTranslation();
@@ -21,7 +22,7 @@ function App() {
         <Route path="/home" element={<p>{t("pages.home")}</p>} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/records" element={<RecordsPage />} />
-        <Route path="/records/new" element={<p>{t("pages.newRecord")}</p>} />
+        <Route path="/records/new" element={<NewRecordPage />} />
         <Route path="/records/:id" element={<RecordDetailPage />} />
         <Route
           path="/records/:id/edit"
